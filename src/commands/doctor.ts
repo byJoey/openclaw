@@ -67,7 +67,7 @@ export async function doctorCommand(
 ) {
   const prompter = createDoctorPrompter({ runtime, options });
   printWizardHeader(runtime);
-  intro("OpenClaw doctor");
+  intro("OpenClaw 诊断");
 
   const root = await resolveOpenClawPackageRoot({
     moduleUrl: import.meta.url,
@@ -99,14 +99,14 @@ export async function doctorCommand(
   const configPath = configResult.path ?? CONFIG_PATH;
   if (!cfg.gateway?.mode) {
     const lines = [
-      "gateway.mode is unset; gateway start will be blocked.",
-      `Fix: run ${formatCliCommand("openclaw configure")} and set Gateway mode (local/remote).`,
-      `Or set directly: ${formatCliCommand("openclaw config set gateway.mode local")}`,
+      "gateway.mode 未设置；网关启动将被阻止。",
+      `修复：运行 ${formatCliCommand("openclaw configure")} 并设置网关模式（local/remote）。`,
+      `或直接设置：${formatCliCommand("openclaw config set gateway.mode local")}`,
     ];
     if (!fs.existsSync(configPath)) {
-      lines.push(`Missing config: run ${formatCliCommand("openclaw setup")} first.`);
+      lines.push(`缺少配置：请先运行 ${formatCliCommand("openclaw setup")}。`);
     }
-    note(lines.join("\n"), "Gateway");
+    note(lines.join("\n"), "网关");
   }
 
   cfg = await maybeRepairAnthropicOAuthProfileId(cfg, prompter);
@@ -128,8 +128,8 @@ export async function doctorCommand(
     const needsToken = auth.mode !== "password" && (auth.mode !== "token" || !auth.token);
     if (needsToken) {
       note(
-        "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
-        "Gateway auth",
+        "网关认证已关闭或缺少令牌。令牌认证现在是推荐的默认设置（包括回环）。",
+        "网关认证",
       );
       const shouldSetToken =
         options.generateGatewayToken === true
@@ -137,7 +137,7 @@ export async function doctorCommand(
           : options.nonInteractive === true
             ? false
             : await prompter.confirmRepair({
-                message: "Generate and configure a gateway token now?",
+                message: "现在生成并配置网关令牌吗？",
                 initialValue: true,
               });
       if (shouldSetToken) {
@@ -153,19 +153,19 @@ export async function doctorCommand(
             },
           },
         };
-        note("Gateway token configured.", "Gateway auth");
+        note("网关令牌已配置。", "网关认证");
       }
     }
   }
 
   const legacyState = await detectLegacyStateMigrations({ cfg });
   if (legacyState.preview.length > 0) {
-    note(legacyState.preview.join("\n"), "Legacy state detected");
+    note(legacyState.preview.join("\n"), "检测到旧版状态");
     const migrate =
       options.nonInteractive === true
         ? true
         : await prompter.confirm({
-            message: "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
+            message: "现在迁移旧版状态（会话/代理/WhatsApp 认证）吗？",
             initialValue: true,
           });
     if (migrate) {
@@ -173,10 +173,10 @@ export async function doctorCommand(
         detected: legacyState,
       });
       if (migrated.changes.length > 0) {
-        note(migrated.changes.join("\n"), "Doctor changes");
+        note(migrated.changes.join("\n"), "诊断更改");
       }
       if (migrated.warnings.length > 0) {
-        note(migrated.warnings.join("\n"), "Doctor warnings");
+        note(migrated.warnings.join("\n"), "诊断警告");
       }
     }
   }
@@ -280,10 +280,10 @@ export async function doctorCommand(
     logConfigUpdated(runtime);
     const backupPath = `${CONFIG_PATH}.bak`;
     if (fs.existsSync(backupPath)) {
-      runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
+      runtime.log(`备份：${shortenHomePath(backupPath)}`);
     }
   } else {
-    runtime.log(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply changes.`);
+    runtime.log(`运行 "${formatCliCommand("openclaw doctor --fix")}" 以应用更改。`);
   }
 
   if (options.workspaceSuggestions !== false) {
@@ -296,12 +296,12 @@ export async function doctorCommand(
 
   const finalSnapshot = await readConfigFileSnapshot();
   if (finalSnapshot.exists && !finalSnapshot.valid) {
-    runtime.error("Invalid config:");
+    runtime.error("配置无效：");
     for (const issue of finalSnapshot.issues) {
       const path = issue.path || "<root>";
       runtime.error(`- ${path}: ${issue.message}`);
     }
   }
 
-  outro("Doctor complete.");
+  outro("诊断完成。");
 }

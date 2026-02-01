@@ -156,24 +156,24 @@ export async function noteStateIntegrity(
   let stateDirExists = existsDir(stateDir);
   if (!stateDirExists) {
     warnings.push(
-      `- CRITICAL: state directory missing (${displayStateDir}). Sessions, credentials, logs, and config are stored there.`,
+      `- 严重：状态目录缺失（${displayStateDir}）。会话、凭据、日志和配置都存储在此。`,
     );
     if (cfg.gateway?.mode === "remote") {
       warnings.push(
-        "- Gateway is in remote mode; run doctor on the remote host where the gateway runs.",
+        "- 网关处于远程模式；请在网关运行的远程主机上运行 doctor。",
       );
     }
     const create = await prompter.confirmSkipInNonInteractive({
-      message: `Create ${displayStateDir} now?`,
+      message: `现在创建 ${displayStateDir} 吗？`,
       initialValue: false,
     });
     if (create) {
       const created = ensureDir(stateDir);
       if (created.ok) {
-        changes.push(`- Created ${displayStateDir}`);
+        changes.push(`- 已创建 ${displayStateDir}`);
         stateDirExists = true;
       } else {
-        warnings.push(`- Failed to create ${displayStateDir}: ${created.error}`);
+        warnings.push(`- 创建 ${displayStateDir} 失败：${created.error}`);
       }
     }
   }
@@ -369,10 +369,10 @@ export async function noteStateIntegrity(
   }
 
   if (warnings.length > 0) {
-    note(warnings.join("\n"), "State integrity");
+    note(warnings.join("\n"), "状态完整性");
   }
   if (changes.length > 0) {
-    note(changes.join("\n"), "Doctor changes");
+    note(changes.join("\n"), "诊断更改");
   }
 }
 
@@ -386,10 +386,10 @@ export function noteWorkspaceBackupTip(workspaceDir: string) {
   }
   note(
     [
-      "- Tip: back up the workspace in a private git repo (GitHub or GitLab).",
-      "- Keep ~/.openclaw out of git; it contains credentials and session history.",
-      "- Details: /concepts/agent-workspace#git-backup-recommended",
+      "- 提示：在私有 git 仓库（GitHub 或 GitLab）中备份工作区。",
+      "- 不要将 ~/.openclaw 纳入 git；它包含凭据和会话历史。",
+      "- 详情：/concepts/agent-workspace#git-backup-recommended",
     ].join("\n"),
-    "Workspace",
+    "工作区",
   );
 }

@@ -55,36 +55,36 @@ async function requireRiskAcknowledgement(params: {
 
   await params.prompter.note(
     [
-      "Security warning — please read.",
+      "安全警告 — 请仔细阅读。",
       "",
-      "OpenClaw is a hobby project and still in beta. Expect sharp edges.",
-      "This bot can read files and run actions if tools are enabled.",
-      "A bad prompt can trick it into doing unsafe things.",
+      "OpenClaw 是一个业余项目，仍处于测试阶段。请做好遇到问题的准备。",
+      "如果启用了工具，此机器人可以读取文件并执行操作。",
+      "恶意提示可能会诱使它做出不安全的行为。",
       "",
-      "If you’re not comfortable with basic security and access control, don’t run OpenClaw.",
-      "Ask someone experienced to help before enabling tools or exposing it to the internet.",
+      "如果您对基本的安全和访问控制不熟悉，请不要运行 OpenClaw。",
+      "在启用工具或将其暴露到互联网之前，请寻求有经验的人帮助。",
       "",
-      "Recommended baseline:",
-      "- Pairing/allowlists + mention gating.",
-      "- Sandbox + least-privilege tools.",
-      "- Keep secrets out of the agent’s reachable filesystem.",
-      "- Use the strongest available model for any bot with tools or untrusted inboxes.",
+      "推荐的基本配置：",
+      "- 配对/允许列表 + 提及触发。",
+      "- 沙箱 + 最小权限工具。",
+      "- 将密钥保存在代理无法访问的文件系统之外。",
+      "- 对于任何带有工具或不受信任收件箱的机器人，使用最强的可用模型。",
       "",
-      "Run regularly:",
+      "定期运行：",
       "openclaw security audit --deep",
       "openclaw security audit --fix",
       "",
-      "Must read: https://docs.openclaw.ai/gateway/security",
+      "必读： https://docs.openclaw.ai/gateway/security",
     ].join("\n"),
-    "Security",
+    "安全",
   );
 
   const ok = await params.prompter.confirm({
-    message: "I understand this is powerful and inherently risky. Continue?",
+    message: "我理解这很强大但也有风险。继续吗？",
     initialValue: false,
   });
   if (!ok) {
-    throw new WizardCancelledError("risk not accepted");
+    throw new WizardCancelledError("风险未接受");
   }
 }
 

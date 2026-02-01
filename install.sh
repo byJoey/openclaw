@@ -798,7 +798,7 @@ warn_shell_path_missing_dir() {
     echo -e "${WARN}→${NC} PATH 警告：缺少 ${label}：${INFO}${dir}${NC}"
     echo -e "这可能导致 ${INFO}openclaw${NC} 在新终端中显示"命令未找到"。"
     echo -e "修复方法（zsh: ~/.zshrc，bash: ~/.bashrc）："
-    echo -e "  export PATH=\"${dir}:\\$PATH\""
+    echo "  export PATH=\"${dir}:\$PATH\""
     echo -e "文档：${INFO}https://docs.openclaw.ai/install#nodejs--npm-path-sanity${NC}"
 }
 

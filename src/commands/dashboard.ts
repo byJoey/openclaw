@@ -33,10 +33,10 @@ export async function dashboardCommand(
   });
   const authedUrl = token ? `${links.httpUrl}?token=${encodeURIComponent(token)}` : links.httpUrl;
 
-  runtime.log(`Dashboard URL: ${authedUrl}`);
+  runtime.log(`控制面板地址：${authedUrl}`);
 
   const copied = await copyToClipboard(authedUrl).catch(() => false);
-  runtime.log(copied ? "Copied to clipboard." : "Copy to clipboard unavailable.");
+  runtime.log(copied ? "已复制到剪贴板。" : "无法复制到剪贴板。");
 
   let opened = false;
   let hint: string | undefined;
@@ -53,11 +53,11 @@ export async function dashboardCommand(
       });
     }
   } else {
-    hint = "Browser launch disabled (--no-open). Use the URL above.";
+    hint = "浏览器启动已禁用（--no-open）。请使用上面的地址。";
   }
 
   if (opened) {
-    runtime.log("Opened in your browser. Keep that tab to control OpenClaw.");
+    runtime.log("已在浏览器中打开。保持该标签页以控制 OpenClaw。");
   } else if (hint) {
     runtime.log(hint);
   }

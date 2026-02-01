@@ -191,12 +191,12 @@ export function formatControlUiSshHint(params: {
   const authedUrl = params.token ? `${localUrl}${tokenParam}` : undefined;
   const sshTarget = resolveSshTargetHint();
   return [
-    "No GUI detected. Open from your computer:",
+    "未检测到图形界面。请从你的电脑打开：",
     `ssh -N -L ${params.port}:127.0.0.1:${params.port} ${sshTarget}`,
-    "Then open:",
+    "然后打开：",
     localUrl,
     authedUrl,
-    "Docs:",
+    "文档：",
     "https://docs.openclaw.ai/gateway/remote",
     "https://docs.openclaw.ai/web/control-ui",
   ]
