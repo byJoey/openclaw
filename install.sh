@@ -885,7 +885,7 @@ resolve_openclaw_bin() {
 
 install_openclaw_from_git() {
     local repo_dir="$1"
-    local repo_url="https://github.com/openclaw/openclaw.git"
+    local repo_url="https://github.com/byJoey/openclaw.git"
 
     if [[ -d "$repo_dir/.git" ]]; then
         echo -e "${WARN}→${NC} 正在从 git 检出安装 OpenClaw：${INFO}${repo_dir}${NC}"
