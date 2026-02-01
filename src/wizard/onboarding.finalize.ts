@@ -63,7 +63,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     process.platform === "linux" ? await isSystemdUserServiceAvailable() : true;
   if (process.platform === "linux" && !systemdAvailable) {
     await prompter.note(
-      "Systemd user services are unavailable. Skipping lingering checks and service install.",
+      "Systemd 用户服务不可用。跳过 lingering 检查和服务安装。",
       "Systemd",
     );
   }
@@ -77,7 +77,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         note: prompter.note,
       },
       reason:
-        "Linux installs use a systemd user service by default. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
+        "Linux 安装默认使用 systemd 用户服务。如果没有 lingering，systemd 会在注销/空闲时停止用户会话并终止网关。",
       requireConfirm: false,
     });
   }
@@ -93,15 +93,15 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     installDaemon = true;
   } else {
     installDaemon = await prompter.confirm({
-      message: "Install Gateway service (recommended)",
+      message: "安装网关服务（推荐）",
       initialValue: true,
     });
   }
 
   if (process.platform === "linux" && !systemdAvailable && installDaemon) {
     await prompter.note(
-      "Systemd user services are unavailable; skipping service install. Use your container supervisor or `docker compose up -d`.",
-      "Gateway service",
+      "Systemd 用户服务不可用；跳过服务安装。请使用容器管理器或 `docker compose up -d`。",
+      "网关服务",
     );
     installDaemon = false;
   }
@@ -111,33 +111,33 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       flow === "quickstart"
         ? DEFAULT_GATEWAY_DAEMON_RUNTIME
         : await prompter.select({
-            message: "Gateway service runtime",
+            message: "网关服务运行时",
             options: GATEWAY_DAEMON_RUNTIME_OPTIONS,
             initialValue: opts.daemonRuntime ?? DEFAULT_GATEWAY_DAEMON_RUNTIME,
           });
     if (flow === "quickstart") {
       await prompter.note(
-        "QuickStart uses Node for the Gateway service (stable + supported).",
-        "Gateway service runtime",
+        "快速开始使用 Node 作为网关服务（稳定 + 支持）。",
+        "网关服务运行时",
       );
     }
     const service = resolveGatewayService();
     const loaded = await service.isLoaded({ env: process.env });
     if (loaded) {
       const action = await prompter.select({
-        message: "Gateway service already installed",
+        message: "网关服务已安装",
         options: [
-          { value: "restart", label: "Restart" },
-          { value: "reinstall", label: "Reinstall" },
-          { value: "skip", label: "Skip" },
+          { value: "restart", label: "重启" },
+          { value: "reinstall", label: "重新安装" },
+          { value: "skip", label: "跳过" },
         ],
       });
       if (action === "restart") {
         await withWizardProgress(
-          "Gateway service",
-          { doneMessage: "Gateway service restarted." },
+          "网关服务",
+          { doneMessage: "网关服务已重启。" },
           async (progress) => {
-            progress.update("Restarting Gateway service…");
+            progress.update("正在重启网关服务…");
             await service.restart({
               env: process.env,
               stdout: process.stdout,
@@ -146,10 +146,10 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         );
       } else if (action === "reinstall") {
         await withWizardProgress(
-          "Gateway service",
-          { doneMessage: "Gateway service uninstalled." },
+          "网关服务",
+          { doneMessage: "网关服务已卸载。" },
           async (progress) => {
-            progress.update("Uninstalling Gateway service…");
+            progress.update("正在卸载网关服务…");
             await service.uninstall({ env: process.env, stdout: process.stdout });
           },
         );
@@ -157,10 +157,10 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     }
 
     if (!loaded || (loaded && !(await service.isLoaded({ env: process.env })))) {
-      const progress = prompter.progress("Gateway service");
+      const progress = prompter.progress("网关服务");
       let installError: string | null = null;
       try {
-        progress.update("Preparing Gateway service…");
+        progress.update("正在准备网关服务…");
         const { programArguments, workingDirectory, environment } = await buildGatewayInstallPlan({
           env: process.env,
           port: settings.port,
@@ -170,7 +170,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
           config: nextConfig,
         });
 
-        progress.update("Installing Gateway service…");
+        progress.update("正在安装网关服务…");
         await service.install({
           env: process.env,
           stdout: process.stdout,
@@ -182,12 +182,12 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         installError = err instanceof Error ? err.message : String(err);
       } finally {
         progress.stop(
-          installError ? "Gateway service install failed." : "Gateway service installed.",
+          installError ? "网关服务安装失败。" : "网关服务已安装。",
         );
       }
       if (installError) {
-        await prompter.note(`Gateway service install failed: ${installError}`, "Gateway");
-        await prompter.note(gatewayInstallErrorHint(), "Gateway");
+        await prompter.note(`网关服务安装失败：${installError}`, "网关");
+        await prompter.note(gatewayInstallErrorHint(), "网关");
       }
     }
   }
@@ -211,11 +211,11 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       runtime.error(formatHealthCheckFailure(err));
       await prompter.note(
         [
-          "Docs:",
+          "文档：",
           "https://docs.openclaw.ai/gateway/health",
           "https://docs.openclaw.ai/gateway/troubleshooting",
         ].join("\n"),
-        "Health check help",
+        "健康检查帮助",
       );
     }
   }
@@ -231,12 +231,12 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.note(
     [
-      "Add nodes for extra features:",
-      "- macOS app (system + notifications)",
-      "- iOS app (camera/canvas)",
-      "- Android app (camera/canvas)",
+      "添加节点以获取额外功能：",
+      "- macOS 应用（系统 + 通知）",
+      "- iOS 应用（相机/画布）",
+      "- Android 应用（相机/画布）",
     ].join("\n"),
-    "Optional apps",
+    "可选应用",
   );
 
   const controlUiBasePath =
@@ -258,8 +258,8 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     password: settings.authMode === "password" ? nextConfig.gateway?.auth?.password : "",
   });
   const gatewayStatusLine = gatewayProbe.ok
-    ? "Gateway: reachable"
-    : `Gateway: not detected${gatewayProbe.detail ? ` (${gatewayProbe.detail})` : ""}`;
+    ? "网关：可达"
+    : `网关：未检测到${gatewayProbe.detail ? `（${gatewayProbe.detail}）` : ""}`;
   const bootstrapPath = path.join(
     resolveUserPath(options.workspaceDir),
     DEFAULT_BOOTSTRAP_FILENAME,
@@ -271,15 +271,15 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
   await prompter.note(
     [
-      `Web UI: ${links.httpUrl}`,
-      tokenParam ? `Web UI (with token): ${authedUrl}` : undefined,
-      `Gateway WS: ${links.wsUrl}`,
+      `Web UI：${links.httpUrl}`,
+      tokenParam ? `Web UI（带令牌）：${authedUrl}` : undefined,
+      `网关 WS：${links.wsUrl}`,
       gatewayStatusLine,
-      "Docs: https://docs.openclaw.ai/web/control-ui",
+      "文档：https://docs.openclaw.ai/web/control-ui",
     ]
       .filter(Boolean)
       .join("\n"),
-    "Control UI",
+    "控制面板",
   );
 
   let controlUiOpened = false;
@@ -291,31 +291,31 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
     if (hasBootstrap) {
       await prompter.note(
         [
-          "This is the defining action that makes your agent you.",
-          "Please take your time.",
-          "The more you tell it, the better the experience will be.",
-          'We will send: "Wake up, my friend!"',
+          "这是让您的代理成为您的定义性操作。",
+          "请花点时间。",
+          "您告诉它的越多，体验就越好。",
+          '我们将发送："醒醒，我的朋友！"',
         ].join("\n"),
-        "Start TUI (best option!)",
+        "启动 TUI（最佳选择！）",
       );
     }
 
     await prompter.note(
       [
-        "Gateway token: shared auth for the Gateway + Control UI.",
-        "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
-        "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
-        `Get the tokenized link anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
+        "网关令牌：网关 + 控制面板的共享认证。",
+        "存储在：~/.openclaw/openclaw.json（gateway.auth.token）或 OPENCLAW_GATEWAY_TOKEN。",
+        "Web UI 在浏览器的 localStorage 中存储一个副本（openclaw.control.settings.v1）。",
+        `随时获取带令牌的链接：${formatCliCommand("openclaw dashboard --no-open")}`,
       ].join("\n"),
-      "Token",
+      "令牌",
     );
 
     hatchChoice = await prompter.select({
-      message: "How do you want to hatch your bot?",
+      message: "您想如何孵化您的机器人？",
       options: [
-        { value: "tui", label: "Hatch in TUI (recommended)" },
-        { value: "web", label: "Open the Web UI" },
-        { value: "later", label: "Do this later" },
+        { value: "tui", label: "在 TUI 中孵化（推荐）" },
+        { value: "web", label: "打开 Web UI" },
+        { value: "later", label: "稍后再做" },
       ],
       initialValue: "tui",
     });
@@ -334,7 +334,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       }
       if (seededInBackground) {
         await prompter.note(
-          `Web UI seeded in the background. Open later with: ${formatCliCommand(
+          `Web UI 已在后台初始化。稍后打开：${formatCliCommand(
             "openclaw dashboard --no-open",
           )}`,
           "Web UI",
@@ -360,37 +360,37 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       }
       await prompter.note(
         [
-          `Dashboard link (with token): ${authedUrl}`,
+          `仪表板链接（带令牌）：${authedUrl}`,
           controlUiOpened
-            ? "Opened in your browser. Keep that tab to control OpenClaw."
-            : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
+            ? "已在浏览器中打开。保持该标签页以控制 OpenClaw。"
+            : "在此机器的浏览器中复制/粘贴此 URL 以控制 OpenClaw。",
           controlUiOpenHint,
         ]
           .filter(Boolean)
           .join("\n"),
-        "Dashboard ready",
+        "仪表板就绪",
       );
     } else {
       await prompter.note(
-        `When you're ready: ${formatCliCommand("openclaw dashboard --no-open")}`,
-        "Later",
+        `当您准备好时：${formatCliCommand("openclaw dashboard --no-open")}`,
+        "稍后",
       );
     }
   } else if (opts.skipUi) {
-    await prompter.note("Skipping Control UI/TUI prompts.", "Control UI");
+    await prompter.note("跳过控制面板/TUI 提示。", "控制面板");
   }
 
   await prompter.note(
     [
-      "Back up your agent workspace.",
-      "Docs: https://docs.openclaw.ai/concepts/agent-workspace",
+      "备份您的代理工作区。",
+      "文档：https://docs.openclaw.ai/concepts/agent-workspace",
     ].join("\n"),
-    "Workspace backup",
+    "工作区备份",
   );
 
   await prompter.note(
-    "Running agents on your computer is risky — harden your setup: https://docs.openclaw.ai/security",
-    "Security",
+    "在您的计算机上运行代理是有风险的 — 加强您的设置：https://docs.openclaw.ai/security",
+    "安全",
   );
 
   const shouldOpenControlUi =
@@ -419,15 +419,15 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
 
     await prompter.note(
       [
-        `Dashboard link (with token): ${authedUrl}`,
+        `仪表板链接（带令牌）：${authedUrl}`,
         controlUiOpened
-          ? "Opened in your browser. Keep that tab to control OpenClaw."
-          : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
+          ? "已在浏览器中打开。保持该标签页以控制 OpenClaw。"
+          : "在此机器的浏览器中复制/粘贴此 URL 以控制 OpenClaw。",
         controlUiOpenHint,
       ]
         .filter(Boolean)
         .join("\n"),
-      "Dashboard ready",
+      "仪表板就绪",
     );
   }
 

@@ -54,19 +54,19 @@ async function promptConfiguredAction(params: {
   const { prompter, label, supportsDisable, supportsDelete } = params;
   const updateOption: WizardSelectOption<ConfiguredChannelAction> = {
     value: "update",
-    label: "Modify settings",
+    label: "修改设置",
   };
   const disableOption: WizardSelectOption<ConfiguredChannelAction> = {
     value: "disable",
-    label: "Disable (keeps config)",
+    label: "禁用（保留配置）",
   };
   const deleteOption: WizardSelectOption<ConfiguredChannelAction> = {
     value: "delete",
-    label: "Delete config",
+    label: "删除配置",
   };
   const skipOption: WizardSelectOption<ConfiguredChannelAction> = {
     value: "skip",
-    label: "Skip (leave as-is)",
+    label: "跳过（保持原样）",
   };
   const options: Array<WizardSelectOption<ConfiguredChannelAction>> = [
     updateOption,
@@ -75,7 +75,7 @@ async function promptConfiguredAction(params: {
     skipOption,
   ];
   return await prompter.select({
-    message: `${label} already configured. What do you want to do?`,
+    message: `${label} 已配置。您想做什么？`,
     options,
     initialValue: "update",
   });
@@ -191,15 +191,15 @@ async function noteChannelPrimer(
   );
   await prompter.note(
     [
-      "DM security: default is pairing; unknown DMs get a pairing code.",
-      `Approve with: ${formatCliCommand("openclaw pairing approve <channel> <code>")}`,
-      'Public DMs require dmPolicy="open" + allowFrom=["*"].',
-      'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
-      `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
+      "DM 安全：默认为配对；未知 DM 会收到配对码。",
+      `批准命令：${formatCliCommand("openclaw pairing approve <channel> <code>")}`,
+      '公开 DM 需要 dmPolicy="open" + allowFrom=["*"]。',
+      '多用户 DM：设置 session.dmScope="per-channel-peer"（或多账户频道使用 "per-account-channel-peer"）来隔离会话。',
+      `文档：${formatDocsLink("/start/pairing", "start/pairing")}`,
       "",
       ...channelLines,
     ].join("\n"),
-    "How channels work",
+    "频道工作原理",
   );
 }
 
@@ -233,7 +233,7 @@ async function maybeConfigureDmPolicies(params: {
   }
 
   const wants = await prompter.confirm({
-    message: "Configure DM access policies now? (default: pairing)",
+    message: "现在配置 DM 访问策略吗？（默认：配对）",
     initialValue: false,
   });
   if (!wants) {
@@ -244,22 +244,22 @@ async function maybeConfigureDmPolicies(params: {
   const selectPolicy = async (policy: ChannelOnboardingDmPolicy) => {
     await prompter.note(
       [
-        "Default: pairing (unknown DMs get a pairing code).",
-        `Approve: ${formatCliCommand(`openclaw pairing approve ${policy.channel} <code>`)}`,
-        `Allowlist DMs: ${policy.policyKey}="allowlist" + ${policy.allowFromKey} entries.`,
-        `Public DMs: ${policy.policyKey}="open" + ${policy.allowFromKey} includes "*".`,
-        'Multi-user DMs: set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate sessions.',
-        `Docs: ${formatDocsLink("/start/pairing", "start/pairing")}`,
+        "默认：配对（未知 DM 会收到配对码）。",
+        `批准命令：${formatCliCommand(`openclaw pairing approve ${policy.channel} <code>`)}`,
+        `允许列表 DM：${policy.policyKey}="allowlist" + ${policy.allowFromKey} 条目。`,
+        `公开 DM：${policy.policyKey}="open" + ${policy.allowFromKey} 包含 "*"。`,
+        '多用户 DM：设置 session.dmScope="per-channel-peer"（或多账户频道使用 "per-account-channel-peer"）来隔离会话。',
+        `文档：${formatDocsLink("/start/pairing", "start/pairing")}`,
       ].join("\n"),
-      `${policy.label} DM access`,
+      `${policy.label} DM 访问`,
     );
     return (await prompter.select({
-      message: `${policy.label} DM policy`,
+      message: `${policy.label} DM 策略`,
       options: [
-        { value: "pairing", label: "Pairing (recommended)" },
-        { value: "allowlist", label: "Allowlist (specific users only)" },
-        { value: "open", label: "Open (public inbound DMs)" },
-        { value: "disabled", label: "Disabled (ignore DMs)" },
+        { value: "pairing", label: "配对（推荐）" },
+        { value: "allowlist", label: "允许列表（仅特定用户）" },
+        { value: "open", label: "开放（公开入站 DM）" },
+        { value: "disabled", label: "禁用（忽略 DM）" },
       ],
     })) as DmPolicy;
   };
@@ -302,13 +302,13 @@ export async function setupChannels(
   const { installedPlugins, catalogEntries, statusByChannel, statusLines } =
     await collectChannelStatus({ cfg: next, options, accountOverrides });
   if (!options?.skipStatusNote && statusLines.length > 0) {
-    await prompter.note(statusLines.join("\n"), "Channel status");
+    await prompter.note(statusLines.join("\n"), "频道状态");
   }
 
   const shouldConfigure = options?.skipConfirm
     ? true
     : await prompter.confirm({
-        message: "Configure chat channels now?",
+        message: "现在配置聊天频道吗？",
         initialValue: true,
       });
   if (!shouldConfigure) {
@@ -610,13 +610,13 @@ export async function setupChannels(
   if (options?.quickstartDefaults) {
     const { entries } = getChannelEntries();
     const choice = (await prompter.select({
-      message: "Select channel (QuickStart)",
+      message: "选择频道（快速开始）",
       options: [
         ...buildSelectionOptions(entries),
         {
           value: "__skip__",
-          label: "Skip for now",
-          hint: `You can add channels later via \`${formatCliCommand("openclaw channels add")}\``,
+          label: "暂时跳过",
+          hint: `您可以稍后通过 \`${formatCliCommand("openclaw channels add")}\` 添加频道`,
         },
       ],
       initialValue: quickstartDefault,
@@ -630,13 +630,13 @@ export async function setupChannels(
     while (true) {
       const { entries } = getChannelEntries();
       const choice = (await prompter.select({
-        message: "Select a channel",
+        message: "选择频道",
         options: [
           ...buildSelectionOptions(entries),
           {
             value: doneValue,
-            label: "Finished",
-            hint: selection.length > 0 ? "Done" : "Skip for now",
+            label: "完成",
+            hint: selection.length > 0 ? "完成" : "暂时跳过",
           },
         ],
         initialValue,
@@ -659,7 +659,7 @@ export async function setupChannels(
     .map((channel) => selectionNotes.get(channel))
     .filter((line): line is string => Boolean(line));
   if (selectedLines.length > 0) {
-    await prompter.note(selectedLines.join("\n"), "Selected channels");
+    await prompter.note(selectedLines.join("\n"), "已选择的频道");
   }
 
   if (!options?.skipDmPolicyPrompt) {
